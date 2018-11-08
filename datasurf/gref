@@ -1,0 +1,95 @@
+import pymysql
+
+
+
+
+alist = []
+done = {}
+
+dbu = input (' db user name')
+dbp = input (' db passwd')
+dbn = input ('to use db')
+t1 = input ('insert seed')
+t2 = input (' insert generation target')
+
+
+conn = pymysql.connect(host='192.168.0.9', user=dbu,passwd=dbp,db=dbn)
+cur = conn.cursor()
+
+
+def ser(tar,time,gen):
+    stat = 1
+    print(tar)
+    if str(tar) == '':
+        stat = 0
+    if time == 'old' or time == 'new':
+        print(f'start search {tar} to {time} way on {gen}th')
+        if time == 'old':
+            tid = 'new'
+        else:
+            tid = 'old'
+    else:
+        print(f'wrong {time}selection')
+        raise
+    
+    if cur.execute(f"select {time}id from {time} where {time}id = {tar};"):
+        pass
+    else:
+        print(f'{tar} is not exist in db ')
+        blankl.add(tar)
+        stat = 0
+    if stat:
+        squ = f"select {time}{time} from {time} whre {time}{tid} = {tar};"
+        cur.execute(squ)
+        row = cur.fetchall()
+        for rw in row:
+            try:
+                alist.index(rw)
+            except:
+                alist.append(rw)
+                c = done[gen]
+                c.append(rw)
+                c = set(c)
+                done[gen] = list(c)
+    else:
+        print(f'{tar} is wrong')
+
+
+
+
+
+def surf(seed, gen):
+    gn = 0
+    print(f'find linkages from {seed} for {gen}th generation')
+    exec(seed, 'new',0)
+    exec(seed,'old',0)
+    tarli = done[gn]
+    gn = 1
+    while int(gn) < int(gen):
+        for trd in tarli:
+            exec(trd, 'new',gn)
+            exec(trd, 'old',gn)
+        gn = gn +1
+
+surf(t1,t2)
+
+
+print('end')
+f = open ('result.txt','w')
+oa = f'result for searching {t1} with {t2}th generations\n'
+ob= str(alist)
+oba = '{all searched list is : ['+ob+']}\n'
+oc = str(done)
+ab = oa+ob+oc
+f.write(ab)
+f.close()
+
+
+
+
+
+
+
+
+
+
