@@ -1,23 +1,23 @@
 import pymysql
-
-
+from time import sleep
 
 
 alist = []
 done = {}
+blankl = []
+done[0] = []
+done[1]= []
 
-dbu = input (' db user name')
-dbp = input (' db passwd')
-dbn = input ('to use db')
-t1 = input ('insert seed')
-t2 = input (' insert generation target')
+t1 = input ('insert seed: ')
+t2 = input (' insert generation target: ')
 
 
-conn = pymysql.connect(host='192.168.0.9', user=dbu,passwd=dbp,db=dbn)
+conn = pymysql.connect(host='192.168.0.9', user='root',passwd='root',db='link')
 cur = conn.cursor()
 
 
 def ser(tar,time,gen):
+
     stat = 1
     print(tar)
     if str(tar) == '':
@@ -31,64 +31,83 @@ def ser(tar,time,gen):
     else:
         print(f'wrong {time}selection')
         raise
-    
-    if cur.execute(f"select {time}id from {time} where {time}id = {tar};"):
-        pass
-    else:
-        print(f'{tar} is not exist in db ')
-        blankl.add(tar)
-        stat = 0
+
     if stat:
-        squ = f"select {time}{time} from {time} whre {time}{tid} = {tar};"
-        cur.execute(squ)
-        row = cur.fetchall()
-        for rw in row:
+        squ = f"select {time}{time} from {time} where {time}{tid} = {tar};"
+        ut = 1
+        while ut:
+
             try:
-                alist.index(rw)
+                print(squ)
+                ut = 0
+                utr  = 0
+                cur.execute(squ)
+                row = cur.fetchall()
+                for rw in row:
+                    k = list(rw)
+                    t = k.pop()
+                    try:
+                        alist.index(t)
+                    except:
+                        alist.append(t)
+                        c = done[gen]
+                        c.append(t)
+                        c = set(c)
+                        done[gen] = list(c)
             except:
-                alist.append(rw)
-                c = done[gen]
-                c.append(rw)
-                c = set(c)
-                done[gen] = list(c)
+                
+                if utr == 5:
+                    ut = 0
+                    utr = 0
+                    print(f'{tar} is not exist in db ')
+                    blankl.append(tar)
+                else:
+                    utr = utr +1
+
     else:
         print(f'{tar} is wrong')
+#    sleep(0.1)
 
 
 
 
 
-def surf(seed, gen):
+def surf(seed, gen,p):
     gn = 0
     print(f'find linkages from {seed} for {gen}th generation')
-    exec(seed, 'new',0)
-    exec(seed,'old',0)
-    tarli = done[gn]
-    gn = 1
-    while int(gn) < int(gen):
-        for trd in tarli:
-            exec(trd, 'new',gn)
-            exec(trd, 'old',gn)
-        gn = gn +1
+    seed = str(seed)
 
-surf(t1,t2)
+    ser(seed, 'new',0)
+    ser(seed,'old',0)
+    while int(gn) < int(gen):
+        try:
+            done[gn]
+        except:
+            done[gn] = []
+        tarli = done[gn]
+        tso = ''
+        tsd = ''
+        gn = gn +1
+        for trd in tarli:
+            print(trd)
+            print(gn)
+            trd = str(trd)
+            ser(trd,'new',gn)
+            ser(trd,'old',gn)
+
+
+surf(t1,t2,5)
 
 
 print('end')
-f = open ('result.txt','w')
+f = open (f'{t1}.txt','w')
 oa = f'result for searching {t1} with {t2}th generations\n'
 ob= str(alist)
-oba = '{all searched list is : ['+ob+']}\n'
+oba = '{all searched list is : ['+ob+']}\n\n\n\n'
 oc = str(done)
-ab = oa+ob+oc
+ab = oa+oba+'\n'+oc +'\n\n\n' + str(blankl)
 f.write(ab)
 f.close()
-
-
-
-
-
-
 
 
 
